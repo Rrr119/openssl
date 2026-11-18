@@ -65,6 +65,35 @@ Tag = 83de3541e4c2b58177e065a9bf7b62ec
 Plaintext = aaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccccccccccccccddddddddddddddddeeeeeeeeeeeeeeeeffffffffffffffffeeeeeeeeeeeeeeeeaaaaaaaaaaaaaaaa
 Ciphertext = 17f399f08c67d5ee19d0dc9969c4bb7d5fd46fd3756489069157b282bb200735d82710ca5c22f0ccfa7cbf93d496ac15a56834cbcf98c397b4024a2691233b8d
 
+Title = SM4-GCM zero-length plaintext test vector
+
+Cipher = SM4-GCM
+Key = 0123456789abcdeffedcba9876543210
+IV = 000000000000000000000000
+Plaintext =
+Ciphertext =
+Tag = 4e595bf03f23bd10329baf5698e898ec
+
+Title = SM4-GCM partial-block test vector
+
+Cipher = SM4-GCM
+Key = 0123456789abcdeffedcba9876543210
+IV = 000102030405060708090a0b
+AAD = 000102030405060708090a0b0c0d0e0f
+Tag = eef13be0361a7dc21a3f04dd44f89b72
+Plaintext = 000102030405060708090a0b0c0d0e
+Ciphertext = 55201a92b5b4af186c8989a0d75168
+
+Title = SM4-GCM TLS record-style AAD test vector
+
+Cipher = SM4-GCM
+Key = 00112233445566778899aabbccddeeff
+IV = aabbccddeeff001122334455
+AAD = 17f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff
+Tag = 13d8032c6d4dde1510080077501f9967
+Plaintext = 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021
+Ciphertext = 977c9fc873230ef2edfc56184dc8a93341329eb0739f85cca3459baf80e0a663f682
+
 Title = SM4 CCM test vectors from RFC8998
 
 Cipher = SM4-CCM

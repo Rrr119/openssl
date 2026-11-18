@@ -1396,6 +1396,16 @@ int SSL_CTX_set_ciphersuites(SSL_CTX *ctx, const char *str)
     return ret;
 }
 
+int SSL_CTX_set0_sm4_gcm(SSL_CTX *ctx)
+{
+    if (ctx == NULL) {
+        ERR_raise(ERR_LIB_SSL, ERR_R_PASSED_NULL_PARAMETER);
+        return 0;
+    }
+
+    return SSL_CTX_set_ciphersuites(ctx, TLS1_3_RFC_SM4_GCM_SM3);
+}
+
 int SSL_set_ciphersuites(SSL *s, const char *str)
 {
     STACK_OF(SSL_CIPHER) *cipher_list;

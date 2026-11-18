@@ -653,6 +653,9 @@ static int test_client_cert_verify_cb(void)
     SSL *clientssl = NULL, *serverssl = NULL;
     int testresult = 0;
 
+    if (is_fips)
+        return TEST_skip("SM4-GCM is not available in the FIPS provider");
+
     if (!TEST_true(create_ssl_ctx_pair(libctx, TLS_server_method(),
             TLS_client_method(), TLS1_VERSION, 0,
             &sctx, &cctx, NULL, NULL)))
@@ -2013,6 +2016,44 @@ end:
 
     return testresult;
 }
+
+#if !defined(OPENSSL_NO_SM4) && !defined(OPENSSL_NO_SM3) \
+    && !defined(OSSL_NO_USABLE_TLS1_3)
+static int test_sm4_gcm_helper(void)
+{
+    SSL_CTX *cctx = NULL, *sctx = NULL;
+    SSL *clientssl = NULL, *serverssl = NULL;
+    int testresult = 0;
+
+    if (!TEST_true(create_ssl_ctx_pair(libctx, TLS_server_method(),
+            TLS_client_method(), TLS1_3_VERSION, TLS1_3_VERSION,
+            &sctx, &cctx, cert, privkey))
+        || !TEST_true(SSL_CTX_set0_sm4_gcm(sctx))
+        || !TEST_true(SSL_CTX_set0_sm4_gcm(cctx))
+        || !TEST_true(create_ssl_objects(sctx, cctx, &serverssl, &clientssl,
+            NULL, NULL))
+        || !TEST_true(create_ssl_connection(serverssl, clientssl,
+            SSL_ERROR_NONE))
+        || !TEST_str_eq(SSL_CIPHER_get_name(SSL_get_current_cipher(serverssl)),
+            TLS1_3_RFC_SM4_GCM_SM3)
+        || !TEST_str_eq(SSL_CIPHER_get_name(SSL_get_current_cipher(clientssl)),
+            TLS1_3_RFC_SM4_GCM_SM3))
+        goto end;
+
+    testresult = 1;
+
+ end:
+    if (serverssl != NULL && clientssl != NULL)
+        shutdown_ssl_connection(serverssl, clientssl);
+    else {
+        SSL_free(serverssl);
+        SSL_free(clientssl);
+    }
+    SSL_CTX_free(sctx);
+    SSL_CTX_free(cctx);
+    return testresult;
+}
+#endif
 
 /*
  * Very focused test to exercise a single case in the server-side state
@@ -19865,6 +19906,10 @@ int setup_tests(void)
     ADD_TEST(test_client_cert_verify_cb);
     ADD_TEST(test_server_cert_verify_cb);
     ADD_TEST(test_server_rpk_verify_cb);
+#if !defined(OPENSSL_NO_SM4) && !defined(OPENSSL_NO_SM3) \
+    && !defined(OSSL_NO_USABLE_TLS1_3)
+    ADD_TEST(test_sm4_gcm_helper);
+#endif
 #ifndef OPENSSL_NO_TLS1_2
     ADD_ALL_TESTS(test_malformed_client_cert_tail, 2);
 #endif
